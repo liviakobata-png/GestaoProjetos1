@@ -46,56 +46,24 @@ public class Main {
 
     private static void menuCadastrarUsuario() {
 
-        System.out.println("\n--- CADASTRO DE EQUIPE ---");
-        List<Usuario> todosUsuarios = service.listarUsuarios();
+        System.out.println("\n--- CADASTRO DE USUÁRIO ---");
+        System.out.print("Nome Completo: "); String nome = scanner.nextLine();
+        System.out.print("CPF: "); String cpf = scanner.nextLine();
+        System.out.print("E-mail: "); String email = scanner.nextLine();
+        System.out.print("Cargo: "); String cargo = scanner.nextLine();
+        System.out.print("Login: "); String login = scanner.nextLine();
+        System.out.print("Senha: "); String senha = scanner.nextLine();
 
-        if (todosUsuarios.isEmpty()) {
-            System.out.println("❌ Cadastre usuários antes de criar uma equipe.");
-            return;
-        }
+        System.out.println("Perfil: 1 - Administrador | 2 - Gerente | 3 - Colaborador");
+        System.out.print("Escolha: ");
+        int perfilOpcao = Integer.parseInt(scanner.nextLine());
+        PerfilUsuario perfil = PerfilUsuario.COLABORADOR;
+        if (perfilOpcao == 1) perfil = PerfilUsuario.ADMINISTRADOR;
+        else if (perfilOpcao == 2) perfil = PerfilUsuario.GERENTE;
 
-        System.out.print("Nome da Equipe: "); String nome = scanner.nextLine();
-        System.out.print("Descrição da Equipe: "); String descricao = scanner.nextLine();
-
-        Equipe novaEquipe = new Equipe(nome, descricao);
-
-        System.out.println("\n--- Alocação de Membros ---");
-        while (true) {
-            System.out.println("Usuários disponíveis:");
-            for (int i = 0; i < todosUsuarios.size(); i++) {
-                System.out.println(i + " - " + todosUsuarios.get(i).getNomeCompleto() + " (" + todosUsuarios.get(i).getPerfil() + ")");
-            }
-            System.out.print("Digite o ID do usuário para adicionar OU digite -1 para FINALIZAR e voltar: ");
-
-            try {
-                int id = Integer.parseInt(scanner.nextLine());
-
-                // CORREÇÃO: A verificação do -1 precisa acontecer ANTES de validar o ID na lista
-                if (id == -1) {
-                    break;
-                }
-
-                if (id >= 0 && id < todosUsuarios.size()) {
-                    Usuario selecionado = todosUsuarios.get(id);
-
-                    // Validação extra: evita adicionar a mesma pessoa duas vezes na mesma equipe
-                    if (novaEquipe.getMembros().contains(selecionado)) {
-                        System.out.println("⚠️ Este usuário já foi adicionado a esta equipe!");
-                    } else {
-                        novaEquipe.adicionarMembro(selecionado);
-                        System.out.println("➕ " + selecionado.getNomeCompleto() + " adicionado com sucesso!");
-                    }
-                } else {
-                    System.out.println("❌ ID inválido! Tente novamente.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("❌ Por favor, digite um número de ID válido ou -1.");
-            }
-            System.out.println(); // Linha em branco para organizar o visual
-        }
-
-        service.cadastrarEquipe(novaEquipe);
-        System.out.println("✅ Equipe registrada com sucesso!");
+        Usuario novoUsuario = new Usuario(nome, cpf, email, cargo, login, senha, perfil);
+        service.cadastrarUsuario(novoUsuario);
+        System.out.println("✅ Usuário cadastrado com sucesso!");
     }
 
     private static void menuCadastrarProjeto() {
@@ -149,19 +117,36 @@ public class Main {
 
         System.out.println("--- Alocação de Membros (Digite -1 para encerrar a seleção) ---");
         while (true) {
+            System.out.println("Usuários disponíveis:");
             for (int i = 0; i < todosUsuarios.size(); i++) {
                 System.out.println(i + " - " + todosUsuarios.get(i).getNomeCompleto() + " (" + todosUsuarios.get(i).getPerfil() + ")");
             }
-            System.out.print("Selecione o ID do usuário para adicionar à equipe: ");
-            int id = Integer.parseInt(scanner.nextLine());
+            // LINHA NOVA: Adiciona a opção visual para o usuário saber o que fazer
+            System.out.println("-1 - Finalizar alocação e voltar");
 
-            if (id == -1) break;
+            System.out.print("Digite a opção desejada: ");
 
-            if (id >= 0 && id < todosUsuarios.size()) {
-                novaEquipe.adicionarMembro(todosUsuarios.get(id));
-                System.out.println("➕ " + todosUsuarios.get(id).getNomeCompleto() + " adicionado!");
-            } else {
-                System.out.println("ID inválido.");
+            try {
+                int id = Integer.parseInt(scanner.nextLine());
+
+                if (id == -1) {
+                    break;
+                }
+
+                if (id >= 0 && id < todosUsuarios.size()) {
+                    Usuario selecionado = todosUsuarios.get(id);
+
+                    if (novaEquipe.getMembros().contains(selecionado)) {
+                        System.out.println("⚠️ Este usuário já foi adicionado a esta equipe!");
+                    } else {
+                        novaEquipe.adicionarMembro(selecionado);
+                        System.out.println("➕ " + selecionado.getNomeCompleto() + " adicionado com sucesso!");
+                    }
+                } else {
+                    System.out.println("❌ ID inválido! Tente novamente.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Por favor, digite um número de ID válido ou -1.");
             }
             System.out.println();
         }
